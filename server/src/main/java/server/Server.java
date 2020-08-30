@@ -3,6 +3,7 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
 
@@ -14,7 +15,7 @@ public class Server {
         return authService;
     }
 
-    public Server() {
+    public Server() throws SQLException {
         clients = new Vector<>();
         authService = new SimpleAuthService();
 
@@ -24,6 +25,9 @@ public class Server {
         final int PORT = 8189;
 
         try {
+            SimpleAuthService.connect();
+            SimpleAuthService.prepareAllStatements();
+            SimpleAuthService.prepareRecording();
             server = new ServerSocket(PORT);
             System.out.println("Сервер запущен!");
 
@@ -34,13 +38,15 @@ public class Server {
                 System.out.println("socket.getLocalSocketAddress() " + socket.getLocalSocketAddress());
                 new ClientHandler(this, socket);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
                 server.close();
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                SimpleAuthService.disconnect();
             }
         }
     }
