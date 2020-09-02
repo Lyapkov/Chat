@@ -57,6 +57,7 @@ public class Controller implements Initializable {
     private Stage stage;
     private Stage regStage;
     RegController regController;
+    FileHandler fileHandler;
 
     public void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
@@ -113,6 +114,7 @@ public class Controller implements Initializable {
                         if (str.startsWith("/authok ")) {
                             nick = str.split("\\s")[1];
                             setAuthenticated(true);
+                            fileHandler = new FileHandler(nick);
                             break;
                         }
 
@@ -132,6 +134,7 @@ public class Controller implements Initializable {
                         textArea.appendText(str + "\n");
                     }
 
+                    loadMsg();
 
                     //цикл работы
                     while (true) {
@@ -140,6 +143,7 @@ public class Controller implements Initializable {
                         if (str.startsWith("/")) {
                             if (str.equals("/end")) {
                                 setAuthenticated(false);
+                                fileHandler.close();
                                 break;
                             }
                             if (str.startsWith("/clientlist ")) {
@@ -153,6 +157,7 @@ public class Controller implements Initializable {
                             }
 
                         } else {
+                            fileHandler.setMessage(str);
                             textArea.appendText(str + "\n");
                         }
                     }
@@ -180,6 +185,14 @@ public class Controller implements Initializable {
         }
     }
 
+    private void loadMsg() {
+        String msg;
+        for (int i = 0; i < 100; i++) {
+            if ((msg = fileHandler.readMessage()) != null) {
+                textArea.appendText(msg + "\n");
+            } else {break;}
+        }
+    }
 
     public void sendMsg(ActionEvent actionEvent) {
         try {
