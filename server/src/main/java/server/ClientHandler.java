@@ -5,8 +5,13 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Logger;
 
 public class ClientHandler {
+    private static final Logger logger = Logger.getLogger(ClientHandler.class.getName());
+
     Server server;
     Socket socket = null;
     DataInputStream in;
@@ -14,6 +19,12 @@ public class ClientHandler {
 
     private String nick;
     private String login;
+
+    public static void newLogger() throws IOException {
+        Handler fileHandler = new FileHandler("logi.log", true);
+        logger.addHandler(fileHandler);
+        logger.setUseParentHandlers(false);
+    }
 
     public ClientHandler(Server server, Socket socket) {
         try {
@@ -45,6 +56,7 @@ public class ClientHandler {
                                     nick = newNick;
                                     server.subscribe(this);
                                     System.out.printf("Клиент %s подключился \n", nick);
+                                    logger.info(nick + " подключился");
                                     socket.setSoTimeout(0);
                                     break;
                                 } else {
@@ -95,10 +107,13 @@ public class ClientHandler {
                         }
                     }
                 }catch (SocketTimeoutException e){
+                    logger.info("Сокет закрылся по таймауту");
                     sendMsg("/end");
                 }catch (IOException e) {
+                    logger.severe("Произошла ошибка!");
                     e.printStackTrace();
                 } finally {
+                    logger.info(nick + " отключился");
                     System.out.println("Клиент отключился");
                     server.unsubscribe(this);
                     try {

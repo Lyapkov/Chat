@@ -6,8 +6,11 @@ import java.net.Socket;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.*;
 
 public class Server {
+    private static final Logger logger = Logger.getLogger(Server.class.getName());
+
     private List<ClientHandler> clients;
     private AuthService authService;
 
@@ -25,23 +28,32 @@ public class Server {
         final int PORT = 8189;
 
         try {
+            Handler fileHandler = new FileHandler("logi.log", true);
+            fileHandler.setFormatter(new SimpleFormatter());
+            logger.addHandler(fileHandler);
+            logger.setUseParentHandlers(false);
+            ClientHandler.newLogger();
             SimpleAuthService.connect();
             SimpleAuthService.prepareAllStatements();
             server = new ServerSocket(PORT);
+            logger.info("Сервер запущен!");
             System.out.println("Сервер запущен!");
 
             while (true) {
                 socket = server.accept();
                 System.out.println("Клиент подключился");
+                logger.info("Клиент подключился");
                 System.out.println("socket.getRemoteSocketAddress(): " + socket.getRemoteSocketAddress());
                 System.out.println("socket.getLocalSocketAddress() " + socket.getLocalSocketAddress());
                 new ClientHandler(this, socket);
             }
         } catch (Exception e) {
+            logger.log(Level.SEVERE, "Ошибка запуска сервера!");
             e.printStackTrace();
         } finally {
             try {
                 server.close();
+                logger.info("Сервер остановлен!");
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
