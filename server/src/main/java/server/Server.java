@@ -27,7 +27,6 @@ public class Server {
         try {
             SimpleAuthService.connect();
             SimpleAuthService.prepareAllStatements();
-            SimpleAuthService.prepareRecording();
             server = new ServerSocket(PORT);
             System.out.println("Сервер запущен!");
 

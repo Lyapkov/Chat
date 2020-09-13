@@ -76,9 +76,6 @@ public class SimpleAuthService implements AuthService {
 
     public static void prepareAllStatements() throws SQLException {
         psSelect = connection.prepareStatement("SELECT * FROM users WHERE login = ? AND pass = ?;");
-    }
-
-    public static void prepareRecording() throws SQLException {
         psInsert = connection.prepareStatement("INSERT INTO users (login, pass, nick) VALUES (?, ?, ?);");
     }
 
